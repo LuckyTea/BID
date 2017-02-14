@@ -9,7 +9,11 @@ def main():
     img_list = []
     url_list = []
     img_downloaded = 0
-    f = urllib.request.urlopen(hostname)
+    try:
+        f = urllib.request.urlopen(hostname)
+    except urllib.error.HTTPError as err:
+        print(err)
+        exit()
     f = f.read()
     f = f.decode(encoding='UTF-8')
     f = f.split('<div id="posts">')
