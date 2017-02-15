@@ -1,21 +1,20 @@
 import os
 import time
 import urllib.request
+import sys
 
 hostname = 'http://danbooru.donmai.us/'
 
 
 def main():
     img_list = []
-    url_list = []
     img_downloaded = 0
     try:
         f = urllib.request.urlopen(hostname)
     except urllib.error.HTTPError as err:
         print(err)
-        exit()
+        sys.exit()
     f = f.read()
-    f = f.decode(encoding='UTF-8')
     f = f.split('<div id="posts">')
     f = f[1].split('<div class="paginator">')
     f = f[0].split('<article')
@@ -28,7 +27,7 @@ def main():
     # download each image from list
     for i in img_list:
         time.sleep(1)
-        f = urllib.request.urlopen('http://danbooru.donmai.us/posts/'+i)
+        f = urllib.request.urlopen(hostname+'/posts/'+i)
         f = f.read()
         f = f.decode(encoding='UTF-8')
         src_s = f.find('data-file-url="/data/__')
