@@ -1,2 +1,2 @@
-# DBD
-Danbooru images download.
+# BID
+-booru images downloader.
