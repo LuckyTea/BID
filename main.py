@@ -6,7 +6,7 @@ import sys
 
 def main():
     gelbooru = 'https://gelbooru.com/index.php?page=post&s='
-    img_list = []
+    img_list = {}
     img_downloaded = 0
     print('BID launced.\n1. Gelbooru\n0. All\nChose platform:')
     while True:
@@ -25,22 +25,29 @@ def main():
         page = page.split('<span class="yup">')
         page = page[1].split('<span id="s')
         page.pop(0)
-        folder_init()
-# take list of images from the front page
+# take information
         for i in page:
-            id = i[0:7]
-            img_list.append(id)
-# download each image from list
-        for i in img_list:
-            time.sleep(1)
-            page = urllib.request.urlopen(gelbooru+'view&id='+i)
-            page = page.read().decode()
-            page = page.split('src="//')
-            link = page[2][0:page[2].find('"')]
-            filename = link.split('/')[-1]
-            filename = filename.split('?')
-            if filename[0] not in os.listdir('img'):
-                urllib.request.urlretrieve('https://'+link, 'img/'+filename[0])
+            id = i.split('"')
+            id = id[0]
+            filename = i.split('img src="')
+            filename = filename[1].split('?')
+            filename = filename[0].split('/')
+            filename = filename[-1].split('_')
+            filename = filename[1]
+            img_list[id] = filename
+        folder_init()
+        storage = os.listdir('img')
+# download new images
+        for key in img_list:
+            if img_list[key] in storage:
+                pass
+            else:
+                time.sleep(0.75)
+                page = urllib.request.urlopen(gelbooru+'view&id='+key)
+                page = page.read().decode()
+                page = page.split('src="//')
+                link = page[2][0:page[2].find('"')]
+                urllib.request.urlretrieve('https://'+link, 'img/'+img_list[key])
                 img_downloaded += 1
 # yay!
     print('Task done! {} images downloaded'.format(img_downloaded))
