@@ -15,7 +15,7 @@ def main():
             break
         except TypeError:
             pass
-    if platform == 1 or 0:
+    if platform == 1 or platform == 0:
         try:
             page = urllib.request.urlopen(gelbooru+'list')
         except urllib.error.HTTPError as err:
@@ -24,12 +24,12 @@ def main():
         page = page.read().decode()
         page = page.split('<span class="yup">')
         page = page[1].split('<span id="s')
+        page.pop(0)
         folder_init()
 # take list of images from the front page
         for i in page:
             id = i[0:7]
             img_list.append(id)
-        img_list.pop(0)
 # download each image from list
         for i in img_list:
             time.sleep(1)
