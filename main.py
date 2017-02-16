@@ -3,42 +3,48 @@ import time
 import urllib.request
 import sys
 
-hostname = 'http://danbooru.donmai.us/'
-
 
 def main():
+    gelbooru = 'https://gelbooru.com/index.php?page=post&s='
     img_list = []
     img_downloaded = 0
-    try:
-        f = urllib.request.urlopen(hostname)
-    except urllib.error.HTTPError as err:
-        print(err)
-        sys.exit()
-    f = f.read()
-    f = f.split('<div id="posts">')
-    f = f[1].split('<div class="paginator">')
-    f = f[0].split('<article')
-    f.remove('\n  <div style="overflow: hidden;">\n    ')
-    folder_init()
-    # take list of images from front page
-    for i in f:
-        k = i[61:68]
-        img_list.append(k)
-    # download each image from list
-    for i in img_list:
-        time.sleep(1)
-        f = urllib.request.urlopen(hostname+'/posts/'+i)
-        f = f.read()
-        f = f.decode(encoding='UTF-8')
-        src_s = f.find('data-file-url="/data/__')
-        src_e = f[src_s:].find('g"')
-        link = hostname+f[src_s+16:src_s+src_e+1]
-        filename = link.split('/')[-1]
-        if filename not in os.listdir('img'):
-            urllib.request.urlretrieve(link, 'img/'+filename)
-            img_downloaded += 1
-    # yay!
+    print('BID launced.\n1. Gelbooru\n0. All\nChose platform:')
+    while True:
+        try:
+            platform = int(input())
+            break
+        except TypeError:
+            pass
+    if platform == 1 or 0:
+        try:
+            page = urllib.request.urlopen(gelbooru+'list')
+        except urllib.error.HTTPError as err:
+            print(err)
+            sys.exit()
+        page = page.read().decode()
+        page = page.split('<span class="yup">')
+        page = page[1].split('<span id="s')
+        folder_init()
+# take list of images from the front page
+        for i in page:
+            id = i[0:7]
+            img_list.append(id)
+        img_list.pop(0)
+# download each image from list
+        for i in img_list:
+            time.sleep(1)
+            page = urllib.request.urlopen(gelbooru+'view&id='+i)
+            page = page.read().decode()
+            page = page.split('src="//')
+            link = page[2][0:page[2].find('"')]
+            filename = link.split('/')[-1]
+            filename = filename.split('?')
+            if filename[0] not in os.listdir('img'):
+                urllib.request.urlretrieve('https://'+link, 'img/'+filename[0])
+                img_downloaded += 1
+# yay!
     print('Task done! {} images downloaded'.format(img_downloaded))
+    sys.exit()
 
 
 def folder_init():
