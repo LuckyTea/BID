@@ -16,8 +16,23 @@ def main():
         except TypeError:
             pass
     if platform == 1 or platform == 0:
+        tags = input('Tags separated by comma: ').lower()
+        if len(tags) < 1:
+            tags = tags.split(',')
+            for i in range(len(tags)):
+                for a in range(len(tags[i])): 
+                    if tags[i][a] not in [' ']:
+                        tags[i] = tags[i][a:]
+                        break
+                    else:
+                        pass
+                tags[i] = tags[i].replace(' ', '_')
+            tags = '+'.join(tags)
+            host = gelbooru+'list&tags='+tags
+        else:
+            host = gelbooru+'list'
         try:
-            page = urllib.request.urlopen(gelbooru+'list')
+            page = urllib.request.urlopen(host)
         except urllib.error.HTTPError as err:
             print(err)
             sys.exit()
