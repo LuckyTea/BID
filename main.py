@@ -8,10 +8,10 @@ def main():
     gelbooru = 'https://gelbooru.com/index.php?page=post&s='
     img_list = {}
     img_downloaded = 0
-    print('BID launced.\n1. Gelbooru\n0. All\nChose platform:')
+    print('BID launced.\n1. Gelbooru\n0. All')
     while True:
         try:
-            platform = int(input())
+            platform = int(input('Chose platform: '))
             break
         except TypeError:
             pass
