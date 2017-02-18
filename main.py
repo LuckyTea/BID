@@ -17,7 +17,7 @@ def main():
             pass
     if platform == 1 or platform == 0:
         tags = input('Tags separated by comma: ').lower()
-        if len(tags) < 1:
+        if len(tags) > 1:
             tags = tags.split(',')
             for i in range(len(tags)):
                 for a in range(len(tags[i])): 
@@ -62,7 +62,10 @@ def main():
                 page = page.read().decode()
                 page = page.split('src="//')
                 link = page[2][0:page[2].find('"')]
-                urllib.request.urlretrieve('https://'+link, 'img/'+img_list[key])
+                filename = link.split('/')[-1]
+                filename = filename.split('?')
+                filename = filename[0]
+                urllib.request.urlretrieve('https://'+link, 'img/'+filename)
                 img_downloaded += 1
 # yay!
     print('Task done! {} images downloaded'.format(img_downloaded))
