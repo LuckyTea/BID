@@ -37,6 +37,11 @@ def main():
             print(err)
             sys.exit()
         page = page.read().decode()
+# tag exisisting 
+        p = page.find('Nobody here but us chickens!')
+        if p != -1:
+            print('Nothing found.')
+            sys.exit()
         page = page.split('<span class="yup">')
         page = page[1].split('<span id="s')
         page.pop(0)
