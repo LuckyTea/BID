@@ -8,6 +8,8 @@ def main():
     gelbooru = 'https://gelbooru.com/index.php?page=post&s='
     img_list = {}
     img_downloaded = 0
+    platform = 1
+    '''
     print('BID launced.\n1. Gelbooru\n0. All')
     while True:
         try:
@@ -15,6 +17,7 @@ def main():
             break
         except TypeError:
             pass
+    '''
     if platform == 1 or platform == 0:
         tags = input('Tags separated by comma: ').lower()
         if len(tags) > 1:
