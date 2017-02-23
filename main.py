@@ -1,5 +1,4 @@
 import os
-import time
 import urllib.request
 import sys
 
@@ -7,6 +6,7 @@ import sys
 def main():
     gelbooru = 'https://gelbooru.com/index.php?page=post&s='
     img_list = {}
+    dwn_list = {}
     img_downloaded = 0
     platform = 1
     '''
@@ -35,16 +35,15 @@ def main():
         else:
             host = gelbooru+'list'
         try:
-            page = urllib.request.urlopen(host)
+            page = urllib.request.urlopen(host).read().decode()
         except urllib.error.HTTPError as err:
             print(err)
-            sys.exit()
-        page = page.read().decode()
+            result(img_downloaded)
 # tag exisisting 
         p = page.find('Nobody here but us chickens!')
         if p != -1:
             print('Nothing found.')
-            sys.exit()
+            result(img_downloaded)
         page = page.split('<span class="yup">')
         page = page[1].split('<span id="s')
         page.pop(0)
@@ -60,14 +59,24 @@ def main():
             img_list[id] = filename
         folder_init()
         storage = os.listdir('img')
-# download new images
-        for key in img_list:
-            if img_list[key] in storage:
-                pass
+        for i in range(len(storage)):
+            name = storage[i].split('.')
+            name = name[0].split('_')
+            if len(name) == 2:
+                storage[i] = name[1]
             else:
-                time.sleep(0.75)
-                page = urllib.request.urlopen(gelbooru+'view&id='+key)
-                page = page.read().decode()
+                storage[i] = name[0]
+# remove duplicates
+        for key in img_list:
+            name = img_list[key].split('.')
+            if name[0] not in storage:
+                dwn_list[key] = img_list[key]
+        input('~{} elements will be downloaded...'.format(len(dwn_list)))
+# download new images
+        for key in dwn_list:
+            page = urllib.request.urlopen(gelbooru+'view&id='+key).read().decode()
+            p = page.find('This post was deleted')
+            if p == -1:
                 page = page.split('src="//')
                 link = page[2][0:page[2].find('"')]
                 filename = link.split('/')[-1]
@@ -75,10 +84,11 @@ def main():
                 filename = filename[0]
                 urllib.request.urlretrieve('https://'+link, 'img/'+filename)
                 img_downloaded += 1
-# yay!
+    result(img_downloaded)
+
+def result(img_downloaded):
     print('Task done! {} images downloaded'.format(img_downloaded))
     sys.exit()
-
 
 def folder_init():
     try:
