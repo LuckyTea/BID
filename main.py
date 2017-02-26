@@ -9,15 +9,7 @@ def main():
     dwn_list = {}
     img_downloaded = 0
     platform = 1
-    '''
-    print('BID launced.\n1. Gelbooru\n0. All')
-    while True:
-        try:
-            platform = int(input('Chose platform: '))
-            break
-        except TypeError:
-            pass
-    '''
+    dwnbar_length = 20
     if platform == 1 or platform == 0:
         tags = input('Tags separated by comma: ').lower()
         if len(tags) > 1:
@@ -34,8 +26,17 @@ def main():
             host = gelbooru+'list&tags='+tags
         else:
             host = gelbooru+'list'
+# request settings
+        req = urllib.request.Request(
+            url=host,
+            data=None,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+            }
+        )
         try:
-            page = urllib.request.urlopen(host).read().decode()
+            with urllib.request.urlopen(host) as page:
+                page = page.read().decode()
         except urllib.error.HTTPError as err:
             print(err)
             result(img_downloaded)
@@ -44,8 +45,7 @@ def main():
         if p != -1:
             print('Nothing found.')
             result(img_downloaded)
-        page = page.split('<span class="yup">')
-        page = page[1].split('<span id="s')
+        page = page.split('<span id="s')
         page.pop(0)
 # take information
         for i in page:
@@ -59,6 +59,7 @@ def main():
             img_list[id] = filename
         folder_init()
         storage = os.listdir('img')
+# remove duplicates
         for i in range(len(storage)):
             name = storage[i].split('.')
             name = name[0].split('_')
@@ -66,15 +67,25 @@ def main():
                 storage[i] = name[1]
             else:
                 storage[i] = name[0]
-# remove duplicates
         for key in img_list:
             name = img_list[key].split('.')
             if name[0] not in storage:
                 dwn_list[key] = img_list[key]
-        input('~{} elements will be downloaded...'.format(len(dwn_list)))
+        input('~{} files will be downloaded...'.format(len(dwn_list)))
+# initiate progress bar
+        sys.stdout.write("Downloading [{}]".format(" "*dwnbar_length))
+        sys.stdout.flush()
+        sys.stdout.write("\b"*(dwnbar_length+1))
+        percent = len(dwn_list) / 100
 # download new images
         for key in dwn_list:
-            page = urllib.request.urlopen(gelbooru+'view&id='+key).read().decode()
+            host = gelbooru+'view&id='+key
+            try:
+                with urllib.request.urlopen(req) as page:
+                    page = page.read().decode()
+            except urllib.error.HTTPError as err:
+                print(err)
+                result(img_downloaded)
             p = page.find('This post was deleted')
             if p == -1:
                 page = page.split('src="//')
@@ -84,10 +95,15 @@ def main():
                 filename = filename[0]
                 urllib.request.urlretrieve('https://'+link, 'img/'+filename)
                 img_downloaded += 1
+                progress = str(round(img_downloaded / percent) / 5).split('.')
+                progress = int(progress[0])
+                sys.stdout.write("█"*progress)
+                sys.stdout.flush()
+                sys.stdout.write("\b"*progress)
     result(img_downloaded)
 
 def result(img_downloaded):
-    print('Task done! {} images downloaded'.format(img_downloaded))
+    print('\nTask done! {} images downloaded'.format(img_downloaded))
     sys.exit()
 
 def folder_init():
