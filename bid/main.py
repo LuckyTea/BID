@@ -22,7 +22,7 @@ async def download_coroutine(url):
 
 def main():
     # get tags
-    tags = (input('tags to download: ')).replace(' ', '+')
+    tags = (input('Enter tags separated by spaces: ')).replace(' ', '+')
     req = f'https://gelbooru.com/index.php?page=post&s=list&tags={tags}'
     response = requests.get(req)
     content = response.content.decode('utf8')
